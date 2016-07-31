@@ -1,10 +1,13 @@
+#! /usr/bin/python3
+
+import sys
 import time
 
 class Blinker(object):
     """Blinker will flip `get_current_state` between True and False with the duration(s) given"""
 
-    ON = True
-    OFF = False
+    ON = 1
+    OFF = 0
 
     def milli_time(self, time_float):
         return int(round(time_float * 1000))
@@ -46,6 +49,6 @@ class Blinker(object):
 
 
 if __name__ == "__main__":
-    blink = Blinker(1000, 100, debug=True)
+    blink = Blinker(*sys.argv[1:], debug=True)
     while True:
         blink.get_current_state()
