@@ -1,10 +1,13 @@
+#! /usr/bin/python3
+
+import sys
 import time
 
 class Blinker(object):
     """Blinker will flip `get_current_state` between True and False with the duration(s) given"""
 
-    ON = True
-    OFF = False
+    ON = 1
+    OFF = 0
 
     def milli_time(self, time_float):
         return int(round(time_float * 1000))
@@ -15,10 +18,13 @@ class Blinker(object):
         self.current_state = state
         self.last_change_time = current_time
 
-    def __init__(self, duration, on_duration= None, start_time= time.time(), debug= False):
+    def __init__(self, duration, on_duration= None, blink_count= 1,
+                    start_time= time.time(), debug= False):
         self.debug = debug
-        self.duration = duration
-        self.on_duration = on_duration or duration
+        self.duration = int(duration)
+        self.blink_count = int(blink_count) + 1  # add 1 to allow modulous to work
+        self.blink_total = 0
+        self.on_duration = int(on_duration) or duration
         self.last_change_time = self.milli_time(start_time)
         self.current_state = self.OFF
         if debug:
@@ -33,10 +39,16 @@ class Blinker(object):
                 self.change_state(self.OFF, current_milli_time)
         else:
             if delta >= self.duration:
-                self.change_state(self.ON, current_milli_time)
+                self.blink_total += 1
+                if self.blink_total % self.blink_count == 0:
+                    self.last_change_time = current_milli_time   # Skip change
+                else:
+                    self.change_state(self.ON, current_milli_time)
+
+        return self.current_state
 
 
 if __name__ == "__main__":
-    blink = Blinker(1000, 100, debug=True)
+    blink = Blinker(*sys.argv[1:], debug=True)
     while True:
         blink.get_current_state()
