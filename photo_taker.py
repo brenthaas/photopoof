@@ -17,7 +17,10 @@ class PhotoTaker(object):
         return font.render(text, 1, (255,0,0))
 
     def clear_background(self):
-        self.background.fill(pygame.Color("white")) # fill with white
+        self.background = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA, 32)
+        self.background.convert_alpha()
+        self.background = self.background.convert()
+        # self.background.fill(pygame.Color("white")) # fill with white
 
     def text_position(self, display_text):
         pos = display_text.get_rect()
@@ -72,8 +75,6 @@ class PhotoTaker(object):
                         50)
         # Full screen the display with no window
         self.screen = pygame.display.set_mode(screenSize, pygame.FULLSCREEN)
-        self.background = pygame.Surface(self.screen.get_size())
-        self.background = self.background.convert() # Convert serface to background
         self.clear_background
 
 
