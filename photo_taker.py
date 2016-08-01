@@ -36,7 +36,7 @@ class PhotoTaker(object):
         pygame.display.flip()
 
     def start_preview(self):
-        self.countdown = countdown.Countdown()
+        self.countdown = countdown.Countdown(final_message="POOF!")
         self.camera.start_preview()
 
     def update_display(self, at_time=None):
@@ -49,7 +49,6 @@ class PhotoTaker(object):
         return self.countdown.is_finished()
 
     def shutdown(self):
-        print("Quitting")
         pygame.quit()
         self.camera.stop_preview()
 
