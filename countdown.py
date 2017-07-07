@@ -16,7 +16,7 @@ class Countdown(object):
 
     def is_finished(self, at_time=None):
         if at_time == None: at_time = time.time()
-        return int(self.end_time - at_time) < 0
+        return int(self.end_time - at_time) <= 0
 
     def get_count(self, at_time=None):
         if at_time == None: at_time = time.time()

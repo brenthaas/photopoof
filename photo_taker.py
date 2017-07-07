@@ -9,8 +9,6 @@ from PIL import Image, ImageDraw, ImageFont
 class PhotoTaker(object):
     """Manages camera and photo countdowns"""
 
-    FINISH_DELAY = 3
-
     def render_font(self, text):
         font_size = 300 if len(text) > 2 else 800
         font = pygame.font.Font(None, font_size)
