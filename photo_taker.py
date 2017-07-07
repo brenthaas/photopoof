@@ -53,13 +53,14 @@ class PhotoTaker(object):
         pygame.quit()
         self.camera.stop_preview()
 
-    def __init__(self, camera, image_path= "./images"):
+    def __init__(self, camera, hflip= True, image_path= "./images"):
         self.image_path = image_path
         self.camera = camera
         self.overlay_renderer = None
         self.last_count = None
 
         self.camera.preview_alpha = 200
+        self.camera.hflip = hflip
         # Make the destination path for the photos
         if not os.path.exists(image_path):
             os.mkdir(image_path)
@@ -81,6 +82,7 @@ class PhotoTaker(object):
 if __name__ == "__main__":
     with picamera.PiCamera() as camera:
         camera.rotation = 270
+        camera.hflip = True
 
         taker = PhotoTaker(camera)
         started = False
