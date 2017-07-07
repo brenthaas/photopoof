@@ -12,7 +12,7 @@ class PhotoTaker(object):
     FINISH_DELAY = 3
 
     def render_font(self, text):
-        font_size = 500 if len(text) > 2 else 800
+        font_size = 300 if len(text) > 2 else 800
         font = pygame.font.Font(None, font_size)
         return font.render(text, 1, (255,0,0))
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         taker = PhotoTaker(camera)
         started = False
 
-    	while True:
+        while True:
             if not started:
                 started = True
                 taker.start_preview()
