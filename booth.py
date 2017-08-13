@@ -1,5 +1,6 @@
 import photo_taker
 import picamera
+import slideshow
 import poofer
 import smart_led
 import sys
@@ -45,6 +46,7 @@ taking_photo = False
 taker = None
 camera_delay = 20
 poof_start_at = None
+default_dir = '/home/pi/images/'
 
 slr_pin = 20
 
@@ -58,6 +60,7 @@ try:
     button_pin = 25
     setup_button(button_pin, take_photo)
 
+    # setup poofer
     poofer_pin = 16
     poofer = poofer.Poofer(
         pin= poofer_pin,
@@ -66,7 +69,16 @@ try:
     )
     poofer.setup()
 
+    # setup camera
     setup_slr(slr_pin)
+
+    # setup slideshow
+    if len(sys.argv) > 1:
+        directory = sys.argv[1]
+    else:
+        directory = default_dir
+
+    slideshow = slideshow.Slideshow(folder= directory, duration= 2);
 
     with picamera.PiCamera() as camera:
         setup_camera(camera)
@@ -86,12 +98,15 @@ try:
                 if taker.is_done():
                     poofer.poof()
                     poof_start_at = milli_time(time.time())
-                    taker.shutdown()
+                    taker.stop_preview()
                     taker = None
                     taking_photo = False
                     default_led()
+                    slideshow.reset_counter()
                 else:
                     taker.update_display()
+            else:
+                slideshow.update()
 
 
 except KeyboardInterrupt:
