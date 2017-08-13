@@ -13,6 +13,9 @@ class Slideshow(object):
         self.image_viewer = image_viewer.ImageViewer()
         self.reset_counter()
 
+    def start_slideshow(self):
+        self.reset_counter()
+
     def update(self):
         if self.counter.is_finished():
             self.file_index = (self.file_index + 1) % len(self.files)
