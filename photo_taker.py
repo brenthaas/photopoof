@@ -49,9 +49,11 @@ class PhotoTaker(object):
     def is_done(self):
         return self.countdown.is_finished()
 
-    def shutdown(self):
-        pygame.quit()
+    def stop_preview(self):
         self.camera.stop_preview()
+
+    def quit(self):
+        pygame.quit()
 
     def __init__(self, camera, hflip= True, image_path= "./images"):
         self.image_path = image_path
