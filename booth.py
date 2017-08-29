@@ -4,6 +4,7 @@ import slideshow
 import poofer
 import smart_led
 import sys
+import os
 import time
 import RPi.GPIO as GPIO
 
@@ -46,7 +47,7 @@ taking_photo = False
 taker = None
 camera_delay = 20
 poof_start_at = None
-default_dir = '/home/pi/images/'
+default_dir = '/home/pi/images/photopoof/'
 
 slr_pin = 20
 
@@ -73,11 +74,13 @@ try:
     setup_slr(slr_pin)
 
     # setup slideshow
-    if len(sys.argv) > 1:
-        directory = sys.argv[1]
-    else:
-        directory = default_dir
+    # if len(sys.argv) > 1:
+    #     directory = sys.argv[1]
+    # else:
+    #     directory = default_dir
+    directory = default_dir
 
+    print('Slideshow Directory: ' + directory)
     slideshow = slideshow.Slideshow(folder= directory, duration= 2);
 
     with picamera.PiCamera() as camera:
@@ -95,16 +98,18 @@ try:
 
             if taking_photo:
                 taker = taker or setup_taker(camera)
+                taker.update_display()
                 if taker.is_done():
                     poofer.poof()
                     poof_start_at = milli_time(time.time())
                     taker.stop_preview()
                     taker = None
                     taking_photo = False
-                    default_led()
+                    os.system('/usr/bin/python3 /usr/local/share/python-gphoto2/examples/list-files.py')
+                    os.system('/usr/bin/python3 /home/pi/dev/photopoof/camera_downloader.py')
+                    slideshow.reload_files()
                     slideshow.reset_counter()
-                else:
-                    taker.update_display()
+                    default_led()
             else:
                 slideshow.update()
 
