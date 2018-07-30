@@ -13,24 +13,24 @@ class Poofer(object):
     def poof(self, callback= None, current_time= None):
         GPIO.output(self.pin, self.ON)
         if current_time == None: current_time = time.time()
-        if self.debug: print("POOF!!! at " + current_time)
+        if self.debug >= 1: print("POOF!!! at %.2f" % current_time)
         self.poof_start_at = self.milli_time(current_time)
         self.current_state = self.ON
 
     def turn_off(self):
         if self.current_state != self.OFF:
-            if self.debug: print("Turning OFF")
+            if self.debug >= 2: print("Turning OFF")
             if self.callback != None: self.callback()
             GPIO.output(self.pin, self.OFF)
             self.poof_start_at = None
             self.current_state = self.OFF
         else:
-            if self.debug: print("Already OFF")
+            if self.debug >= 2: print("Already OFF")
 
-    def __init__(self, pin, callback= None, flame_duration_ms= 20, debug= False):
+    def __init__(self, pin, callback= None, flame_duration_ms= 20, debug_level= 0):
         self.pin = pin
         self.callback = callback
-        self.debug = debug
+        self.debug = debug_level
         self.flame_duration = int(flame_duration_ms)
         self.current_state = self.OFF
         self.poof_start_at = None
@@ -41,10 +41,10 @@ class Poofer(object):
 
     def update(self, current_time= None):
         if self.poof_start_at == None:
-            if self.debug: print("Not poofing...")
+            if self.debug >= 2: print("Not poofing...")
             return self.turn_off()
         if current_time == None: current_time = time.time()
         time_delta = self.milli_time(current_time) - self.poof_start_at
         if time_delta > self.flame_duration:
-            if self.debug: print("Time expired - turn OFF")
+            if self.debug >= 2: print("Time expired - turn OFF")
             self.turn_off()

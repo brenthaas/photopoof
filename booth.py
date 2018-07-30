@@ -74,7 +74,8 @@ try:
     poofer = poofer.Poofer(
         pin= poofer_pin,
         flame_duration_ms= 20,
-        callback= take_picture
+        callback= take_picture,
+        debug_level = 1
     )
     poofer.setup()
 
@@ -98,32 +99,28 @@ try:
             poofer.update()
             button_led.update()
 
-            # if poof_start_at != None:
-            #     delta = milli_time(time.time()) - poof_start_at
-            #     if delta > camera_delay:
-            #         poof_start_at = None
-            #         take_picture(slr_pin)
-
             if taking_photo:
                 taker = taker or setup_taker(camera)
                 taker.update_display()
                 if taker.is_done():
                     poofer.poof()
-                    poof_start_at = milli_time(time.time())
+                    poof_blackout_until = milli_time(time.time())
                     taker.stop_preview()
+                    # slideshow.update()
                     taker = None
                     taking_photo = False
-                    os.system('/usr/bin/python3 /usr/local/share/python-gphoto2/examples/list-files.py')
-                    os.system('/usr/bin/python3 /home/pi/dev/photopoof/camera_downloader.py')
+                    # os.system('/usr/bin/python3 /usr/local/share/python-gphoto2/examples/list-files.py')
+                    # os.system('/usr/bin/python3 /home/pi/dev/photopoof/camera_downloader.py')
                     slideshow.reload_files()
                     slideshow.reset_counter()
                     default_led()
+                    slideshow.update()
             else:
                 slideshow.update()
 
+except Exception as e:
+    print(e)
 
-except KeyboardInterrupt:
-    GPIO.cleanup()       # clean up GPIO on CTRL+C exit
+finally:
+    GPIO.cleanup()           # clean up GPIO on normal exit
     sys.exit()
-
-GPIO.cleanup()           # clean up GPIO on normal exit
