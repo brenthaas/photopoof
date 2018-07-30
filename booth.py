@@ -9,6 +9,10 @@ import os
 import time
 import RPi.GPIO as GPIO
 
+def poof_blackout():
+    current_time = milli_time(time.time())
+    return (current_time + poof_blackout_duration) >= poof_blackout_until
+
 def setup_button(pin, callback):
     GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback, bouncetime=800)
@@ -30,7 +34,10 @@ def setup_camera(camera):
 
 def take_photo(pin):
     global taking_photo
-    taking_photo = True
+    if poof_blackout():
+        taking_photo = True
+    else:
+        print('Poof suppressed...')
     button_led.blink(100)
 
 def setup_taker(camera):
@@ -41,16 +48,16 @@ def setup_taker(camera):
 def default_led():
     button_led.blink(200, 1000)
 
-# setup board
-GPIO.setmode(GPIO.BCM)
-
 taking_photo = False
 taker = None
 camera_delay = 20
-poof_start_at = None
+poof_blackout_until = milli_time(time.time())
+poof_blackout_duration = 100
 default_dir = '/home/pi/images/photopoof/'
-
 slr_pin = 20
+
+# setup board
+GPIO.setmode(GPIO.BCM)
 
 try:
     # setup LEDs
