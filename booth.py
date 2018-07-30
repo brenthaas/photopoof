@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import photo_taker
 import picamera
 import slideshow
