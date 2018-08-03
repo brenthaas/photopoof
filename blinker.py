@@ -30,6 +30,9 @@ class Blinker(object):
         if debug:
             print("Starting Blinker at {} in the {} state".format(self.last_change_time, self.current_state))
 
+    def get_duration(self):
+        return self.duration
+
     def get_current_state(self, current_time= None):
         if current_time == None: current_time = time.time()
         current_milli_time = self.milli_time(current_time)

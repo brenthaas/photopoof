@@ -10,8 +10,11 @@ import time
 import RPi.GPIO as GPIO
 
 def poof_blackout():
+    global poofed_at
+    global poof_blackout_duration
     current_time = milli_time(time.time())
-    return (current_time + poof_blackout_duration) >= poof_blackout_until
+    blackout_until = poofed_at + poof_blackout_duration
+    return current_time >= blackout_until
 
 def setup_button(pin, callback):
     GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -36,9 +39,9 @@ def take_photo(pin):
     global taking_photo
     if poof_blackout():
         taking_photo = True
+        button_led.blink(100)
     else:
-        print('Poof suppressed...')
-    button_led.blink(100)
+        print('Button suppressed...')
 
 def setup_taker(camera):
     taker = photo_taker.PhotoTaker(camera)
@@ -51,8 +54,8 @@ def default_led():
 taking_photo = False
 taker = None
 camera_delay = 20
-poof_blackout_until = milli_time(time.time())
-poof_blackout_duration = 100
+poofed_at = milli_time(time.time())
+poof_blackout_duration = 500
 default_dir = '/home/pi/images/photopoof/'
 slr_pin = 20
 
@@ -104,16 +107,16 @@ try:
                 taker.update_display()
                 if taker.is_done():
                     poofer.poof()
-                    poof_blackout_until = milli_time(time.time())
-                    taker.stop_preview()
+                    poofed_at = milli_time(time.time())
                     # slideshow.update()
-                    taker = None
-                    taking_photo = False
                     # os.system('/usr/bin/python3 /usr/local/share/python-gphoto2/examples/list-files.py')
                     # os.system('/usr/bin/python3 /home/pi/dev/photopoof/camera_downloader.py')
-                    slideshow.reload_files()
+                    # slideshow.reload_files()
                     slideshow.reset_counter()
                     default_led()
+                    taker.stop_preview()
+                    taker = None
+                    taking_photo = False
                     slideshow.update()
             else:
                 slideshow.update()
