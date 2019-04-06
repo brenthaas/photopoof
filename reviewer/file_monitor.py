@@ -3,39 +3,51 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 class Watcher:
-    def __init__(self, dir):
+    def __init__(self, dir, callback, debug=False):
+        """ Watches the given directory and calls callback on new file creation """
         self.observer = Observer()
+        self.callback = callback
+        self.debug = debug
         self.dir_to_watch = dir
 
     def run(self):
-        event_handler = Handler()
+        """ Begin watching """
+        event_handler = SlideshowHandler(self.callback, self.debug)
         self.observer.schedule(event_handler, self.dir_to_watch, recursive=True)
         self.observer.start()
-        try:
-            while True:
-                time.sleep(500000)
-        except:
-            self.observer.stop()
-            print("Error")
 
+    def finish(self):
+        self.observer.stop()
+        if self.debug:
+            print("Stopping watching - %s" % self.dir_to_watch)
         self.observer.join()
 
+class SlideshowHandler(FileSystemEventHandler):
+    def __init__(self, callback, debug=False):
+        self.debug = debug
+        self.callback = callback
 
-class Handler(FileSystemEventHandler):
-    @staticmethod
-    def on_any_event(event):
+    def on_any_event(self, event):
         if event.is_directory:
             return None
 
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
-            print("Received created event - %s." % event.src_path)
+            if self.debug:
+                print("New Photo Upload - %s." % event.src_path)
+            self.callback(event.src_path)
 
-        elif event.event_type == 'modified':
-            # Taken any action here when a file is modified.
-            print("Received modified event - %s." % event.src_path)
-
+class Testing:
+    def puts(self, str):
+        print("YAY!! %s" % str)
 
 if __name__ == '__main__':
-    w = Watcher("/Users/brent/tmp")
+    test_obj = Testing()
+    w = Watcher("/Users/brent/tmp", test_obj.puts, True)
     w.run()
+    try:
+        while True:
+            time.sleep(50000)
+    except:
+        w.finish()
+
