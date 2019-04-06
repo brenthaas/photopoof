@@ -40,8 +40,9 @@ class Slideshow(tkinter.Tk):
     def set_image(self):
         """Setup image to be displayed"""
         self.image_name = next(self.images)
-        filename, ext = os.path.splitext(self.image_name)
-        self.image = ImageTk.PhotoImage(Image.open(self.image_name))
+        image = Image.open(self.image_name)
+        fullscreen_image = image.resize((self.winfo_screenwidth(), self.winfo_screenheight()), Image.ANTIALIAS)
+        self.image = ImageTk.PhotoImage(fullscreen_image)
 
     def main(self):
         """Display the images"""
@@ -73,11 +74,12 @@ if __name__ == "__main__":
     # http://pillow.readthedocs.io/en/3.3.x/handbook/image-file-formats.html
     import glob
     images = glob.glob("*.jpg")
-    path = "/Users/brent/Pictures/PhotoPoof_Bonobos/"
+    path = "/Users/brent/Pictures/PhotoPoof_BlackRock_jpgs/"
     exts = ["jpg", "bmp", "png", "gif", "jpeg"]
-    # images = [fn for fn in os.listdir(path) if any(fn.endswith(ext) for ext in exts)]
-    images = [path + "IMG_0487.JPG", path + "IMG_0488.JPG", path + "IMG_0489.JPG"]
+    images = [fn for fn in os.listdir(path) if any(fn.endswith(ext) for ext in exts)]
+    # images = [path + "IMG_0487.JPG", path + "IMG_0488.JPG", path + "IMG_0489.JPG"]
+    filenames = ['{0}{1}'.format(path, img) for img in images]
 
     # start the slideshow
-    slideshow = Slideshow(images, slide_interval)
+    slideshow = Slideshow(filenames, slide_interval)
     slideshow.start()
