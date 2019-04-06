@@ -17,7 +17,8 @@ class Slideshow(tkinter.Tk):
         """
         tkinter.Tk.__init__(self)
         self.geometry("+0+0")
-        self.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit()))
+        self.overrideredirect(True)
+        self.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit(), self.destroy()))
         self.slide_interval = slide_interval
         self.images = None
         self.set_images(images)
@@ -60,7 +61,7 @@ class Slideshow(tkinter.Tk):
 
 
 if __name__ == "__main__":
-    slide_interval = 2500
+    slide_interval = 3500
 
     # use a list
     #images = ["image1.jpg",
@@ -86,4 +87,7 @@ if __name__ == "__main__":
 
     # start the slideshow
     slideshow = Slideshow(filenames, slide_interval)
-    slideshow.start()
+    try:
+        slideshow.start()
+    except:
+        sys.exit()
