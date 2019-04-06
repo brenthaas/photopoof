@@ -17,6 +17,7 @@ class Slideshow(tkinter.Tk):
         """
         tkinter.Tk.__init__(self)
         self.geometry("+0+0")
+        self.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit()))
         self.slide_interval = slide_interval
         self.images = None
         self.set_images(images)
@@ -73,9 +74,12 @@ if __name__ == "__main__":
     # exts is the file extentions to use.  it can be any extention that pillow supports
     # http://pillow.readthedocs.io/en/3.3.x/handbook/image-file-formats.html
     import glob
+    import sys
+
+    path = sys.argv[1] if len(sys.argv) > 1 else "/Users/brent/Pictures/PhotoPoof_BlackRock_jpgs/"
+    print("Using Path %s" % path)
     images = glob.glob("*.jpg")
-    path = "/Users/brent/Pictures/PhotoPoof_BlackRock_jpgs/"
-    exts = ["jpg", "bmp", "png", "gif", "jpeg"]
+    exts = ["JPG", "jpg", "bmp", "png", "gif", "jpeg"]
     images = [fn for fn in os.listdir(path) if any(fn.endswith(ext) for ext in exts)]
     # images = [path + "IMG_0487.JPG", path + "IMG_0488.JPG", path + "IMG_0489.JPG"]
     filenames = ['{0}{1}'.format(path, img) for img in images]
