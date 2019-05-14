@@ -5,7 +5,7 @@ class ImageViewer(object):
     """Displays images"""
 
     def __init__(self):
-        self.setup();
+        self.setup()
 
     def setup(self):
         pygame.display.init()

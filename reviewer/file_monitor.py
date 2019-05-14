@@ -34,8 +34,11 @@ class SlideshowHandler(FileSystemEventHandler):
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
             if self.debug:
-                print("New Photo Upload - %s." % event.src_path)
-            self.callback(event.src_path)
+                print("New File - %s." % event.src_path)
+            if event.src_path.endswith('.jpg'):
+                if self.debug:
+                    print("Calling callback")
+                self.callback(event.src_path)
 
 class Testing:
     def puts(self, str):

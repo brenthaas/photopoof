@@ -16,9 +16,10 @@ class Slideshow(tkinter.Tk):
         slide_interval = milliseconds to display image
         """
         tkinter.Tk.__init__(self)
-        self.geometry("+0+0")
-        self.overrideredirect(True)
         self.bind("<Escape>", lambda e: (e.widget.withdraw(), e.widget.quit(), self.destroy()))
+        self.geometry("+0+0")
+        # self.overrideredirect(True)
+        self.attributes('-fullscreen', True)
         self.slide_interval = slide_interval
         self.images = None
         self.set_images(images)
@@ -82,7 +83,6 @@ if __name__ == "__main__":
     images = glob.glob("*.jpg")
     exts = ["JPG", "jpg", "bmp", "png", "gif", "jpeg"]
     images = [fn for fn in os.listdir(path) if any(fn.endswith(ext) for ext in exts)]
-    # images = [path + "IMG_0487.JPG", path + "IMG_0488.JPG", path + "IMG_0489.JPG"]
     filenames = ['{0}{1}'.format(path, img) for img in images]
 
     # start the slideshow
