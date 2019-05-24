@@ -29,7 +29,7 @@ class SlideshowHandler(FileSystemEventHandler):
 
     def on_any_event(self, event):
         if self.debug:
-            print("Encountered event: %s - %s" % event.event_type, event.src_path)
+            print("Encountered event: {0} - {1}".format(event.event_type, event.src_path))
         if event.is_directory:
             return None
 
