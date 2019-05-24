@@ -45,8 +45,12 @@ class Testing:
         print("YAY!! %s" % str)
 
 if __name__ == '__main__':
+    import sys
+
+    path = sys.argv[1] if len(sys.argv) > 1 else "/home/pi/Desktop/photopoof"
+    print("Using Path %s" % path)
     test_obj = Testing()
-    w = Watcher("/Users/brent/tmp", test_obj.puts, True)
+    w = Watcher(path, test_obj.puts, True)
     w.run()
     try:
         while True:
