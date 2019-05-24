@@ -35,7 +35,11 @@ class PhotoViewer:
 
 
 if __name__ == '__main__':
-    viewer = PhotoViewer("/Users/brent/Desktop/photopoof/")
+    import sys
+
+    path = sys.argv[1] if len(sys.argv) > 1 else "/home/pi/Desktop/photopoof"
+    print("Using Path %s" % path)
+    viewer = PhotoViewer(path)
     try:
         viewer.start()
     except:
