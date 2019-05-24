@@ -28,6 +28,8 @@ class SlideshowHandler(FileSystemEventHandler):
         self.callback = callback
 
     def on_any_event(self, event):
+        if self.debug:
+            print("Encountered event: %s - %s" % event.event_type, event.src_path)
         if event.is_directory:
             return None
 
