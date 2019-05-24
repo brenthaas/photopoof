@@ -33,7 +33,7 @@ class SlideshowHandler(FileSystemEventHandler):
         if event.is_directory:
             return None
 
-        elif event.event_type == 'created':
+        elif event.event_type is 'created' or 'modified' :
             # Take any action here when a file is first created.
             if self.debug:
                 print("New File - %s." % event.src_path)
