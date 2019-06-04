@@ -37,11 +37,10 @@ class PhotoViewer:
 if __name__ == '__main__':
     import sys
 
-    path = sys.argv[1] if len(sys.argv) > 1 else "/home/pi/Desktop/photopoof"
-    print("Using Path %s" % path)
-    viewer = PhotoViewer(path)
     try:
+        path = sys.argv[1] if len(sys.argv) > 1 else "/home/pi/Desktop/photopoof"
+        viewer = PhotoViewer(path)
         viewer.start()
-    except:
-        print("Closing...")
+    except Exception as ex:
+        print("Closing due to exception" + ex)
         viewer.close()
