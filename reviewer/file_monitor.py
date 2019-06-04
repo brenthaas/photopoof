@@ -28,18 +28,14 @@ class SlideshowHandler(FileSystemEventHandler):
         self.callback = callback
 
     def on_any_event(self, event):
-        if self.debug:
-            print("Encountered event: {0} - {1}".format(event.event_type, event.src_path))
         if event.is_directory:
             return None
 
         elif event.event_type is 'created' or 'modified' :
             # Take any action here when a file is first created.
-            if self.debug:
-                print("New File - %s." % event.src_path)
             if event.src_path.endswith('.jpg'):
                 if self.debug:
-                    print("Calling callback")
+                    print("File found! (%s) Calling callback" % event.src_path)
                 self.callback(event.src_path)
 
 class Testing:
