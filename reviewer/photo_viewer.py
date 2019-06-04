@@ -22,15 +22,15 @@ class PhotoViewer:
     def add_image_and_restart(self, file_path):
         """Adds the given file to the front of the slideshow"""
         if file_path.endswith('.jpg'):
-            self.images = [file_path] + self.images
+            self.images = [file_path] + self.images[0:4]
             self.slideshow.set_images(self.images)
 
     def setup_images(self):
         """Pulls all jpgs from a directory into slideshow"""
         files = glob.glob(self.photo_dir + "*.jpg")
         files.sort(key=os.path.getmtime)
-        files.reverse
-        self.images = files
+        files.reverse()
+        self.images = files[0:5]
 
 
 
