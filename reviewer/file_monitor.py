@@ -31,8 +31,8 @@ class SlideshowHandler(FileSystemEventHandler):
         if event.is_directory:
             return None
 
-        elif event.event_type is 'created' or 'modified' :
-            # Take any action here when a file is first created.
+        elif event.event_type is 'modified' or 'created':
+            # Take any action here when a jpg is uploaded.
             if event.src_path.endswith('.jpg'):
                 if self.debug:
                     print("File found! (%s) Calling callback" % event.src_path)
