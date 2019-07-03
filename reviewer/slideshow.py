@@ -40,7 +40,7 @@ class Slideshow(tkinter.Tk):
         y = h / 2 - size[1] / 2
         self.geometry("+%d+%d" % (x, y))
 
-    def set_image(self):
+    def use_next_image(self):
         """Setup image to be displayed"""
         self.image_name = next(self.images)
         image = Image.open(self.image_name)
@@ -49,7 +49,7 @@ class Slideshow(tkinter.Tk):
 
     def main(self):
         """Display the images"""
-        self.set_image()
+        self.use_next_image()
         self.slide.config(image=self.image)
         self.title(self.image_name)
         self.center()
