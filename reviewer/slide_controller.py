@@ -6,11 +6,11 @@ class SlideController:
         """Gives users control over slideshow display"""
         GPIO.setmode(GPIO.BCM)
         self.reset_button = reset_button
-        GPIO.add_event_detect(reset_button, FALLING, self.handle_button)
         GPIO.setup(reset_button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(reset_button, GPIO.FALLING, self.handle_button)
         self.slides = LiveSlideshow(dir, display_duration)
 
-    def handle_button(self):
+    def handle_button(self, another_option):
         self.slides.reset_slideshow()
 
 if __name__ == '__main__':
