@@ -9,6 +9,7 @@ class SlideController:
         GPIO.setup(reset_button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(reset_button, GPIO.FALLING, self.handle_button)
         self.slides = LiveSlideshow(dir, display_duration)
+        self.slides.start()
 
     def handle_button(self, another_option):
         self.slides.reset_slideshow()
