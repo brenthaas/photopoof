@@ -11,7 +11,7 @@ class SlideController:
         self.slides = LiveSlideshow(dir, display_duration)
         self.slides.start()
 
-    def handle_button(self, another_option):
+    def handle_button(self, channel):
         self.slides.reset_slideshow()
 
 if __name__ == '__main__':
