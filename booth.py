@@ -57,7 +57,7 @@ camera_delay = 20
 poofed_at = milli_time(time.time())
 poof_blackout_duration = 500
 default_dir = '/home/pi/images/photopoof/'
-slr_pin = 20
+slr_pin = 22
 
 # setup board
 GPIO.setmode(GPIO.BCM)
@@ -69,11 +69,11 @@ try:
     default_led()
 
     # setup buttons
-    button_pin = 25
+    button_pin = 23
     setup_button(button_pin, take_photo)
 
     # setup poofer
-    poofer_pin = 16
+    poofer_pin = 21
     poofer = poofer.Poofer(
         pin= poofer_pin,
         flame_duration_ms= 20,
