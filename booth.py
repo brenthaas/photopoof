@@ -17,7 +17,7 @@ def poof_blackout():
     return current_time >= blackout_until
 
 def setup_button(pin, callback):
-    GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.add_event_detect(pin, GPIO.FALLING, callback=callback, bouncetime=800)
 
 def milli_time(time_float):
