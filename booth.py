@@ -73,7 +73,7 @@ try:
     setup_button(button_pin, take_photo)
 
     # setup poofer
-    poofer_pin = 21
+    poofer_pin = 27
     poofer = poofer.Poofer(
         pin= poofer_pin,
         flame_duration_ms= 20,
