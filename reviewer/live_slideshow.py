@@ -1,5 +1,6 @@
 import glob
 import os
+import time
 from file_monitor import Watcher
 from slideshow import Slideshow
 
@@ -25,6 +26,7 @@ class LiveSlideshow:
     def add_image_and_restart(self, file_path):
         """Adds the given file to the front of the slideshow"""
         if file_path.endswith('.jpg'):
+            time.sleep(1)
             self.images = [file_path] + self.images[0:4]
             self.reset_slideshow()
 
