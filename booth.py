@@ -33,7 +33,9 @@ def setup_slr(pin):
     GPIO.output(pin, GPIO.HIGH)  # turn off
 
 def setup_camera(camera):
-    camera.rotation = 270
+    # camera.rotation = 270
+    camera.rotation = 90
+
 
 def take_photo(pin):
     global taking_photo
@@ -53,7 +55,7 @@ def default_led():
 
 taking_photo = False
 taker = None
-camera_delay = 20
+camera_delay = 200
 poofed_at = milli_time(time.time())
 poof_blackout_duration = 500
 default_dir = '/home/pi/images/photopoof/'
@@ -76,7 +78,7 @@ try:
     poofer_pin = 27
     poofer = poofer.Poofer(
         pin= poofer_pin,
-        flame_duration_ms= 20,
+        flame_duration_ms= 80,
         callback= take_picture,
         debug_level = 1
     )
