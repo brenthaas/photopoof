@@ -62,7 +62,7 @@ class Slideshow(tkinter.Tk):
 
 
 if __name__ == "__main__":
-    slide_interval = 3500
+    slide_interval = 5500
 
     # use a list
     #images = ["image1.jpg",
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     import glob
     import sys
 
-    path = sys.argv[1] if len(sys.argv) > 1 else "/Users/brent/Pictures/PhotoPoof_BlackRock_jpgs/"
+    path = sys.argv[1] if len(sys.argv) > 1 else "~/pi/Pictures/photopoof/"
     print("Using Path %s" % path)
     images = glob.glob("*.jpg")
     exts = ["JPG", "jpg", "bmp", "png", "gif", "jpeg"]
