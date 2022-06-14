@@ -8,6 +8,9 @@ from itertools import cycle
 from PIL import Image, ImageTk
 from printer import Printer
 
+def print_file():
+    print("Printing")
+
 class Slideshow():
     """Display a slideshow from a list of filenames"""
     def __init__(self, images, slide_interval):
@@ -36,6 +39,13 @@ class Slideshow():
         self.button = tk.Button(self.frame, text="QUIT", bg="black", fg="red", command=quit, highlightthickness = 0, bd = 0)
         self.button.pack(side=tk.BOTTOM)
 
+        # Setup Print button
+        self.currently_printing = False
+        self.frame = tk.Frame(self.root)
+        self.frame.place(x=1200, y=770)
+        self.button = tk.Button(self.frame, text="Print", bg="black", fg="yellow", command=self.print_current_file, highlightthickness = 0, bd = 0)
+        self.button.pack(side=tk.BOTTOM)
+
     @property
     def screen_width(self):
         return self.root.winfo_screenwidth()
@@ -46,6 +56,13 @@ class Slideshow():
 
     def set_images(self, images):
          self.images = cycle(images)
+
+    def print_current_file(self):
+        if self.currently_printing: return None
+        self.currently_printing = True
+        print("Printing {}".format(self.image_name))
+        Printer(self.image_name)
+
 
     def center(self):
         """Center the slide window on the screen"""
