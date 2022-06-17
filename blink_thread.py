@@ -1,7 +1,6 @@
 import threading
 import logging
 from signal import signal, SIGINT, SIGTERM, SIGHUP, pause
-# import signal
 import sys
 import RPi.GPIO as GPIO
 from time import sleep
