@@ -1,12 +1,12 @@
 import threading
 import logging
 from signal import signal, SIGINT, SIGTERM, SIGHUP, pause
+# import signal
 import sys
 import RPi.GPIO as GPIO
 from time import sleep
 
 class Blinker(threading.Thread):
-
     def __init__(self, kill_event, pause_flag, pin=12, sleep_time=1,
                  group=None, target=None, name=None):
         threading.Thread.__init__(self, group=group, target=target, name=name)
@@ -33,18 +33,17 @@ class Blinker(threading.Thread):
                     self.flip()
                 else:
                     logging.debug('No blink, Paused')
-                self.kill.wait(timeout=self.sleep_time)
+                self.kill.wait(timeout=self.sleep_time) # threaded sleep
         finally:
             GPIO.output(self.pin, GPIO.LOW)
             logging.debug('All Done!')
 
 class PauseButton(threading.Thread):
-
     def __init__(self, pause_flag, pin=20,
                  group=None, target=None, name=None):
         self.pause_flag = pause_flag
         GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(pin, GPIO.FALLING,
+        GPIO.add_event_detect(pin, GPIO.RISING,
             callback=self.button_pressed_callback, bouncetime=1000)
 
     def button_pressed_callback(self, channel):
@@ -63,26 +62,30 @@ class PauseButton(threading.Thread):
 kill_event = threading.Event()
 pause_flag = threading.Event()
 
-if __name__ == '__main__':
+def quit(signo, _frame):
+    logging.debug("Interrrupt received, shutting down")
+    cleanup()
+    sys.exit()
+
+def setup():
     logging.basicConfig(
         level=logging.DEBUG,
         format='(%(threadName)-10s) %(message)s',
     )
-
+    for sig in (SIGINT, SIGHUP, SIGTERM):
+        signal(sig, quit)
     GPIO.setmode(GPIO.BCM)
-    blinker = Blinker(kill_event, pause_flag, sleep_time=1, name='Blinker')
-    button = PauseButton(pause_flag)
+
+def cleanup():
+    kill_event.set()
+    blinker.join()
+    GPIO.cleanup()
+
+if __name__ == '__main__':
+    setup()
+    blinker = Blinker(kill_event, pause_flag, sleep_time=2, name='Blinker')
     blinker.setDaemon(True)
+    button = PauseButton(pause_flag)
 
-    try:
-        blinker.start()
-        pause()
-
-    except Exception as e:
-        print(e)
-
-    finally:
-        kill_event.set()
-        blinker.join()
-        GPIO.cleanup()           # clean up GPIO on normal exit
-        sys.exit()
+    blinker.start()
+    pause()
