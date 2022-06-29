@@ -16,9 +16,16 @@ camera_pin = 2
 poof_pin = 14
 
 def countdown(count):
-    for count in reversed(range(1, count + 1)):
-        logger.update('count', "~ %d ~"%count)
-        time.sleep(1)
+    cur_time = time.ticks_ms()
+    start_time = cur_time
+    # to help avoid infinite loop
+    end_time = cur_time + (count * 1000) + 200
+    while cur_time < end_time:
+        tick = int(time.ticks_diff(time.ticks_ms(), start_time) / 1000)
+        countdown = count - tick
+        logger.update('count', '%d' % countdown)
+        time.sleep_ms(200)
+        cur_time = time.ticks_ms()
     logger.update('count', "~~~~~")
 
 def button_pressed(pin):
