@@ -14,7 +14,8 @@ class PoofShot:
         self.log_name = log_name
 
     def log(self, message):
-        self.logger.update(self.log_name, message)
+        print(message)
+        # self.logger.update(self.log_name, message)
 
     def trigger(self, duration=None):
         self.log("POOF!")
