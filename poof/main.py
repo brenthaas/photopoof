@@ -1,5 +1,5 @@
 from screen_logger import ScreenLogger
-from _thread import start_new_thread, allocate_lock
+from _thread import start_new_thread
 from button import Button
 from poof_shot import PoofShot
 from machine import Pin
@@ -8,6 +8,7 @@ import time
 ###### Variables ######
 debounce_ms = 5000
 last_tick = time.ticks_ms() - debounce_ms
+sequence_running = False
 
 ###### Pins ######
 button_pin = 0
@@ -31,34 +32,27 @@ def countdown(count):
 def button_pressed(pin):
     global debounce_ms
     global last_tick
-    global lock
+    global sequence_running
     logger.update('btn', 'pressed')
     delta = time.ticks_diff(last_tick, time.ticks_ms())
     if delta < debounce_ms:
         debounce_until = time.ticks_ms() + debounce_ms
-        lock.acquire(1)
+        sequence_running = True
         logger.update('btn', 'wait')
         countdown(5)
         logger.update('btn', 'now poof')
         poofer.trigger()
         logger.update('btn', 'ready')
-        lock.release()
-
-
-def poof():
-    logger.update('poof', 'POOF!')
-
-    time.sleep_us((3000 * 1000))
-    logger.update('poof', 'done')
+        sequence_running = False
 
 def blinker():
-    global lock
+    global sequence_running
     blink_ms = 250
     led.value(1)
     logger.update('led', led.value())
     dots = 0
     while True:
-        if lock.locked():
+        if sequence_running:
             logger.update('led', led.value())
             led.value(not led.value())
             time.sleep_ms(blink_ms)
@@ -68,7 +62,6 @@ def blinker():
             led.value(1)
             time.sleep_ms(100)
 
-lock = allocate_lock()
 logger = ScreenLogger(row_names=['btn', 'poof', 'count', 'led'])
 
 button = Button(pin=button_pin, callback=button_pressed)
