@@ -1,4 +1,4 @@
-from _thread import start_new_thread, lock, unlock
+from _thread import start_new_thread
 from button import Button
 from machine import Pin
 from poof_shot import PoofShot
@@ -28,7 +28,6 @@ def countdown(count):
     countdown = None
     while cur_time < end_time:
         sequence_running = True
-        unlock()
         tick = int(time.ticks_diff(time.ticks_ms(), start_time) / 1000)
         new_countdown = count - tick
         if new_countdown != countdown:
@@ -57,17 +56,13 @@ def button_pressed(pin):
     delta = time.ticks_diff(last_tick, time.ticks_ms())
     if delta < debounce_ms:
         debounce_until = time.ticks_ms() + debounce_ms
-        lock()
         sequence_running = True
-        unlock()
         # logger.update('btn', 'wait')
         countdown(5)
         # logger.update('btn', 'now poof')
         poofer.trigger()
         # logger.update('btn', 'ready')
-        lock()
         sequence_running = False
-        unlock()
 
 def toggle_led():
     global led_on
@@ -80,15 +75,12 @@ def blinker():
     led.value(1)
     # logger.update('led', led.value())
     while True:
-        lock()
         if sequence_running:
             # logger.update('led', led.value())
-            unlock()
             toggle_led()
             time.sleep_ms(blink_ms)
         else:
             # logger.update('led', 'wait' + '.' * dots)
-            unlock()
             led.value(1)
             time.sleep_ms(40)
 
