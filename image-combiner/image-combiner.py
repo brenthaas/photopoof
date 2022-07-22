@@ -1,4 +1,4 @@
-import os, sys, time
+import sys, time
 from pathlib import Path
 from PIL import Image
 
