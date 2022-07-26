@@ -13,10 +13,13 @@ class PoofShot:
         self.poof_ms = poof_ms
         self.logger = logger
         self.log_name = log_name
+        self.debug = debug
 
     def log(self, message):
         if self.debug:
-            self.logger.update(self.log_name, message)
+            print(message)
+            if self.logger:
+                self.logger.update(self.log_name, message)
 
     def trigger(self, duration=None):
         self.log("POOF!")

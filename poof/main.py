@@ -10,36 +10,35 @@ import time
 debounce_ms = 5000
 last_tick = time.ticks_ms() - debounce_ms
 sequence_running = False
+current_count = None
 led_on = False
 
 ###### Pins ######
 button_pin = 15
 led_pin = 12
 camera_pin = 2
-poof_pin = 14
+poof_pin = 17
 
 def countdown(count):
     global number_display
     global sequence_running
+    global current_count
     cur_time = time.ticks_ms()
     start_time = cur_time
     # to help avoid infinite loop
     end_time = cur_time + (count * 1000) + 200
-    countdown = None
     while cur_time < end_time:
         sequence_running = True
         tick = int(time.ticks_diff(time.ticks_ms(), start_time) / 1000)
-        new_countdown = count - tick
-        if new_countdown != countdown:
-            countdown = new_countdown
-            number_display.show(countdown)
-        # logger.update('count', '%d' % countdown)
-        time.sleep_ms(50)
+        count_now = count - tick
+        if count_now != current_count:
+            current_count = count_now
+            number_display.show(current_count)
+            # logger.update('count', '%d' % countdown)
         cur_time = time.ticks_ms()
     # logger.update('count', "~~~~~")
-    animate_poof(times=1)
 
-def animate_poof(times=3):
+def animate_poof(times=1):
     characters = ["'", 'o', '-', 'O']
     for _x in range(0,times):
         for char in characters:
@@ -100,8 +99,7 @@ animate_poof(times=3)
 
 while True:
     if(button.button.value() == 0):
-        print("button pressed")
         button_pressed(button.button)
+        time.sleep_ms(1000)
     else:
-        print("sleeping")
         time.sleep_ms(100)
