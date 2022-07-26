@@ -4,7 +4,8 @@ from machine import Pin
 
 class PoofShot:
     def __init__(self, poof_pin=14, poof_ms=1000,
-                 camera_pin=2, logger=None, log_name='poof'):
+                 camera_pin=2, logger=None, log_name='poof',
+                 debug=False):
         self.camera = Pin(camera_pin, Pin.OUT)
         self.camera.value(1)
         self.poof = Pin(poof_pin, Pin.OUT)
@@ -14,8 +15,8 @@ class PoofShot:
         self.log_name = log_name
 
     def log(self, message):
-        print(message)
-        # self.logger.update(self.log_name, message)
+        if self.debug:
+            self.logger.update(self.log_name, message)
 
     def trigger(self, duration=None):
         self.log("POOF!")

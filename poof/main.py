@@ -34,11 +34,10 @@ def countdown(count):
             countdown = new_countdown
             number_display.show(countdown)
         # logger.update('count', '%d' % countdown)
-        print("Countdown: ", countdown)
         time.sleep_ms(50)
         cur_time = time.ticks_ms()
     # logger.update('count', "~~~~~")
-    animate_poof()
+    animate_poof(times=1)
 
 def animate_poof(times=3):
     characters = ["'", 'o', '-', 'O']
@@ -66,30 +65,43 @@ def button_pressed(pin):
 
 def toggle_led():
     global led_on
+    print("toggling LED")
     led_on = not led_on
     led.value(led_on)
 
 def blinker():
     global sequence_running
     blink_ms = 150
-    led.value(1)
     # logger.update('led', led.value())
+    led.value(1)
+    blinking = False
     while True:
         if sequence_running:
+            always_on = True
             # logger.update('led', led.value())
             toggle_led()
             time.sleep_ms(blink_ms)
         else:
             # logger.update('led', 'wait' + '.' * dots)
-            led.value(1)
-            time.sleep_ms(40)
+            # Turn LED back on
+            if blinking:
+                blinking = False
+                led.value(1)
+            time.sleep_ms(100)
 
 # logger = ScreenLogger(row_names=['btn', 'poof', 'count', 'led'])
 
 number_display = Segments(offline=False)
-number_display.show('.')
 poofer = PoofShot(camera_pin=camera_pin, poof_pin=poof_pin, poof_ms=200)
 button = Button(pin=button_pin, callback=button_pressed)
 led = Pin(led_pin, Pin.OUT)
 start_new_thread("Blinker", blinker, ())
-animate_poof(times=5)
+animate_poof(times=3)
+
+while True:
+    if(button.button.value() == 0):
+        print("button pressed")
+        button_pressed(button.button)
+    else:
+        print("sleeping")
+        time.sleep_ms(100)
