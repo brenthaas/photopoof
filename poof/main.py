@@ -94,16 +94,17 @@ def blinker():
 
 # logger = ScreenLogger(row_names=['btn', 'poof', 'count', 'led'])
 
-number_display = Segments(offline=False)
-poofer = PoofShot(camera_pin=camera_pin, poof_pin=poof_pin, poof_ms=500)
-button = Button(pin=button_pin, callback=button_pressed)
-led = Pin(led_pin, Pin.OUT)
-start_new_thread("Blinker", blinker, ())
-animate_poof(times=3)
+if __name__ == '__main__':
+    number_display = Segments(offline=False)
+    poofer = PoofShot(camera_pin=camera_pin, poof_pin=poof_pin, poof_ms=500)
+    button = Button(pin=button_pin, callback=button_pressed)
+    led = Pin(led_pin, Pin.OUT)
+    start_new_thread("Blinker", blinker, ())
+    animate_poof(times=3)
 
-while True:
-    if(button.button.value() == 0):
-        button_pressed(button.button)
-        time.sleep_ms(1000)
-    else:
-        time.sleep_ms(100)
+    while True:
+        if(button.button.value() == 0):
+            button_pressed(button.button)
+            time.sleep_ms(1000)
+        else:
+            time.sleep_ms(100)
