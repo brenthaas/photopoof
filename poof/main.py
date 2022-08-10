@@ -14,8 +14,8 @@ current_count = None
 led_on = False
 
 ###### Pins ######
-button_pin = 15
-led_pin = 12
+button_pin = 26
+led_pin = 15
 camera_pin = 2
 poof_pin = 17
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     number_display = Segments(offline=False)
     poofer = PoofShot(camera_pin=camera_pin, poof_pin=poof_pin, poof_ms=500)
     button = Button(pin=button_pin, callback=button_pressed)
-    led = Pin(led_pin, Pin.OUT)
+    led = Pin(led_pin, Pin.OUT, Pin.PULL_UP)
     start_new_thread("Blinker", blinker, ())
     animate_poof(times=3)
 
