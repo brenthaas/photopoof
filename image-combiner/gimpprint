@@ -1,0 +1,5 @@
+#! /bin/bash
+
+gimp -i -b "(quick-print \"$1\")" -b "(gimp-quit 0)"&
+sleep 3
+xdotool search --onlyvisible --name Print | xargs -I {} -n 1 xdotool key --window {} Return
