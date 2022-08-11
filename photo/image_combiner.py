@@ -2,14 +2,15 @@ from datetime import datetime
 from PIL import Image
 
 class ImageCombiner:
-    def __init__(self, logo='./logo.jpg', working_folder='/tmp/', debug=False):
-        # config
-        self.output_folder = working_folder
-        self.canvas_size = [1210, 1810] # w, h
-        self.image_size = [905, 605] # w, h
-        self.image_rotation = 'ccw' # cw | ccw (default)
-        self.logo_image = Image.open(logo)
+    def __init__(self, logo='./default_logo.jpg', working_folder='/tmp/', debug=True):
         self.debug = debug
+        if debug: print("Working folder for combined images: %s" % working_folder)
+        self.output_folder = working_folder
+        self.canvas_size = [1200, 1800] # w, h
+        self.image_size = [900, 600] # w, h
+        self.image_rotation = 'ccw' # cw | ccw (default)
+        if debug: print("Using Logo: %s" % logo)
+        self.logo_image = Image.open(logo)
 
     ## merge 2 images using a positional directive
     def merge(self, im1, im2, position="right"):
@@ -42,6 +43,7 @@ class ImageCombiner:
         return datetime.now().strftime("%Y-%m-%d_%HH%M-%S")
 
     def combine(self, filename):
+        if self.debug: print("Combining Image: %s" % filename)
         src_image = Image.open(filename)
 
         ## resize the source image
@@ -67,7 +69,7 @@ class ImageCombiner:
         dst_image.paste(src_image)
 
         ## save to output folder
-        dst_image_path = self.output_folder + "PhotoPoof_" + self.timestamp() + '.jpg'
+        dst_image_path = "%s/PhotoPoof_%s.jpg" % (self.output_folder, self.timestamp())
         dst_image.save(dst_image_path, "JPEG")
         if self.debug: print("Saving combined image: " + dst_image_path)
         return dst_image_path
