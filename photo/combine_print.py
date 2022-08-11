@@ -5,7 +5,7 @@ from sys import argv
 import os
 
 class CombinePrint:
-    def __init__(self, logo, debug=True, delete_files=True):
+    def __init__(self, logo='./logo.jpg', debug=True, delete_files=False):
         self.debug = debug
         self.combiner = ImageCombiner(logo=logo)
         self.print_command = 'gimpprint '
@@ -24,6 +24,6 @@ if __name__ == "__main__":
     if len(argv) == 2:
         CombinePrint().print(argv[1])
     elif len(argv) == 3:
-        CombinePrint(logo= argv[2]).print(argv[1])
+        CombinePrint(logo=argv[2]).print(argv[1])
     else:
         print("You must provide an image as the 1st argument")
