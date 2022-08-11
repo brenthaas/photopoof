@@ -2,25 +2,14 @@ from datetime import datetime
 from PIL import Image
 
 class ImageCombiner:
-    def __init__(self, debug=False):
+    def __init__(self, logo='./logo.jpg', working_folder='/tmp/', debug=False):
         # config
-        self.output_folder = './images-output/'
-        self.canvas_size = [1200, 1800] # w, h
-        self.image_size = [900, 600] # w, h
+        self.output_folder = working_folder
+        self.canvas_size = [1210, 1810] # w, h
+        self.image_size = [905, 605] # w, h
         self.image_rotation = 'ccw' # cw | ccw (default)
-        logo_image_path = './logo.jpg'
-        self.logo_image = Image.open(logo_image_path)
+        self.logo_image = Image.open(logo)
         self.debug = debug
-        # logo_path = Path(logo_image_path)
-        # ## ensure the logo exists and is a valid image
-        # if not logo_path.is_file():
-        #     print('Error: Logo image does not exist > ' + logo_image_path)
-        #     quit()
-        # try:
-        #     self.logo_image = Image.open(logo_image_path)
-        # except:
-        #     print('Error: Invalid logo > ' + logo_image_path)
-        #     quit()
 
     ## merge 2 images using a positional directive
     def merge(self, im1, im2, position="right"):
@@ -78,7 +67,7 @@ class ImageCombiner:
         dst_image.paste(src_image)
 
         ## save to output folder
-        dst_image_path = self.output_folder + "PhotoPoof_" + self.timestamp() + '.png'
-        dst_image.save(dst_image_path, "PNG")
-        if self.debug: print("Saving converted file: " + dst_image_path)
+        dst_image_path = self.output_folder + "PhotoPoof_" + self.timestamp() + '.jpg'
+        dst_image.save(dst_image_path, "JPEG")
+        if self.debug: print("Saving combined image: " + dst_image_path)
         return dst_image_path
