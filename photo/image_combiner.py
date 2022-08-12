@@ -38,22 +38,33 @@ class ImageCombiner:
         im.paste(im1)
         im.paste(im2, (x, y))
         return im
+    
+    def process_image(self, image):
+        ## resize the image
+        image = image.resize((self.image_size[0], self.image_size[1]))
+        ## merge the logo to the right of the image
+        image = self.merge(image, self.logo_image, "right")
+        return image
 
     def timestamp(self):
         return datetime.now().strftime("%Y-%m-%d_%HH%M-%S")
 
-    def combine(self, filename):
+    def combine(self, filename, filename2=None):
         if self.debug: print("Combining Image: %s" % filename)
-        src_image = Image.open(filename)
+        image = self.process_image(Image.open(filename))
 
-        ## resize the source image
-        src_image = src_image.resize((self.image_size[0], self.image_size[1]))
+        # what to put of the bottom row?
+        if filename2 is None:
+            ## no second image. duplicate our first one.
+            if self.debug: print("Repeating Image: %s" % filename)
+            image2 = image    
+        else:
+            ## process second image
+            if self.debug: print("Combining Image: %s" % filename2)
+            image2 = self.process_image(Image.open(filename2))
 
-        ## merge the logo
-        src_image = self.merge(src_image, self.logo_image, "right")
-
-        ## duplicate on a second row
-        src_image = self.merge(src_image, src_image, "bottom")
+        ## create the bottom row
+        image = self.merge(image, image2, "bottom")
 
         ## rotate
         if self.image_rotation == "cw":
