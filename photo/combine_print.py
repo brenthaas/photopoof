@@ -11,8 +11,8 @@ class CombinePrint:
         self.print_command = 'gimpprint '
         self.delete_files = delete_files
 
-    def print(self, filename):
-        combined_image = self.combiner.combine(filename)
+    def print(self, filename, filename2=None):
+        combined_image = self.combiner.combine(filename, filename2)
         print("Printing combined file: %s" % self.print_command + combined_image)
         os.system(self.print_command + combined_image)
         if self.delete_files:
