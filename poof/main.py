@@ -17,7 +17,7 @@ led_on = False
 button_pin = 26
 led_pin = 15
 camera_pin = 2
-poof_pin = 17
+poof_pin = 13
 
 def countdown(count):
     global number_display
@@ -96,7 +96,7 @@ def blinker():
 
 if __name__ == '__main__':
     number_display = Segments(offline=False)
-    poofer = PoofShot(camera_pin=camera_pin, poof_pin=poof_pin, poof_ms=500)
+    poofer = PoofShot(camera_pin=camera_pin, poof_pin=poof_pin, poof_ms=200)
     button = Button(pin=button_pin, callback=button_pressed)
     led = Pin(led_pin, Pin.OUT, Pin.PULL_UP)
     start_new_thread("Blinker", blinker, ())

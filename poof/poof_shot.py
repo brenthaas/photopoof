@@ -25,10 +25,10 @@ class PoofShot:
         self.log("POOF!")
         self.poof.value(0)
         time.sleep_us(self.poof_ms * 1000)
+        self.poof.value(1)
         self.camera.value(0)
-        time.sleep_ms(50)
+        time.sleep_ms(200)
         self.camera.value(1)
         self.log("off")
-        self.poof.value(1)
 
 
