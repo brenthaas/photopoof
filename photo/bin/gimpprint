@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+gimp -i -b "(quick-print \"$1\")" -b "(gimp-quit 0)"&
