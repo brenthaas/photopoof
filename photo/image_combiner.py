@@ -71,13 +71,13 @@ class ImageCombiner:
             image_rotation = Image.Transpose.ROTATE_270
         else: # default: ccw
             image_rotation = Image.Transpose.ROTATE_90
-        src_image = src_image.transpose(image_rotation)
+        image = image.transpose(image_rotation)
 
         ## create the destination image per the canvas size
         dst_image = Image.new("RGB", (self.canvas_size[0], self.canvas_size[1]))
 
         ## paste onto the destination image
-        dst_image.paste(src_image)
+        dst_image.paste(image)
 
         ## save to output folder
         dst_image_path = "%s/PhotoPoof_%s.jpg" % (self.output_folder, self.timestamp())
