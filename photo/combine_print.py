@@ -21,9 +21,15 @@ class CombinePrint:
 
 
 if __name__ == "__main__":
-    if len(argv) == 2:
-        CombinePrint().print(argv[1])
-    elif len(argv) == 3:
-        CombinePrint(logo=argv[2]).print(argv[1])
-    else:
+    number_of_arguments = len(argv)
+    if number_of_arguments < 2:
         print("You must provide an image as the 1st argument")
+    else:
+        files_list = [argv[1]]
+        constructor_params = []
+        if number_of_arguments > 2:
+            files_list.append(argv[2])
+        if number_of_arguments > 3:
+            for n in range(3, number_of_arguments):
+                constructor_params.append(argv[n])
+        CombinePrint(*constructor_params).print(*files_list)
