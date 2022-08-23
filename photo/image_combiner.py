@@ -80,7 +80,7 @@ class ImageCombiner:
         dst_image.paste(image)
 
         ## save to output folder
-        dst_image_path = "%s/PhotoPoof_%s.jpg" % (self.output_folder, self.timestamp())
+        dst_image_path = "%sPhotoPoof_%s.jpg" % (self.output_folder, self.timestamp())
         dst_image.save(dst_image_path, "JPEG")
         if self.debug: print("Saving combined image: " + dst_image_path)
         return dst_image_path
