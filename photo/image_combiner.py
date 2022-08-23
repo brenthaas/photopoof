@@ -2,7 +2,7 @@ from datetime import datetime
 from PIL import Image
 
 class ImageCombiner:
-    def __init__(self, logo='./default_logo.jpg', working_folder='/tmp/', debug=True):
+    def __init__(self, logo='./logo.jpg', working_folder='/tmp/', debug=True):
         self.debug = debug
         if debug: print("Working folder for combined images: %s" % working_folder)
         self.output_folder = working_folder
