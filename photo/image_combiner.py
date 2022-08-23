@@ -1,3 +1,4 @@
+from sys import argv
 from datetime import datetime
 from PIL import Image
 
@@ -84,3 +85,7 @@ class ImageCombiner:
         dst_image.save(dst_image_path, "JPEG")
         if self.debug: print("Saving combined image: " + dst_image_path)
         return dst_image_path
+
+
+if __name__ == "__main__":
+    ImageCombiner().combine(argv[1], argv[2]);
