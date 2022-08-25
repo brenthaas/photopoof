@@ -7,8 +7,8 @@ class ImageCombiner:
         self.debug = debug
         if debug: print("Working folder for combined images: %s" % working_folder)
         self.output_folder = working_folder
-        self.canvas_size = [1200, 1800] # w, h
-        self.image_size = [900, 600] # w, h
+        self.canvas_size = [1845, 1248] # w, h. This translates to 6.15 x 4.16 inches, which is apparently the correct size for the printer.
+        self.image_size = [936, 624] # w, h. This is what size each photo will get cropped to
         self.image_rotation = 'ccw' # cw | ccw (default)
         if debug: print("Using Logo: %s" % logo)
         self.logo_image = Image.open(logo)
@@ -67,18 +67,18 @@ class ImageCombiner:
         ## create the bottom row
         image = self.merge(image, image2, "bottom")
 
-        ## rotate
-        if self.image_rotation == "cw":
-            image_rotation = Image.Transpose.ROTATE_270
-        else: # default: ccw
-            image_rotation = Image.Transpose.ROTATE_90
-        image = image.transpose(image_rotation)
-
         ## create the destination image per the canvas size
         dst_image = Image.new("RGB", (self.canvas_size[0], self.canvas_size[1]))
 
         ## paste onto the destination image
         dst_image.paste(image)
+
+        ## rotate, for the printer
+        if self.image_rotation == "cw":
+            image_rotation = Image.Transpose.ROTATE_270
+        else: # default: ccw
+            image_rotation = Image.Transpose.ROTATE_90
+        dst_image = dst_image.transpose(image_rotation)
 
         ## save to output folder
         dst_image_path = "%sPhotoPoof_%s.jpg" % (self.output_folder, self.timestamp())
