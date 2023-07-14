@@ -1,6 +1,7 @@
 
-
+#include <Arduino.h>
 #include <SPI.h>
+#include <Wire.h>
 #include <TFT_eSPI.h>
 #include <Button2.h>
 #include "bmp.h"
@@ -19,10 +20,12 @@
 #define CAMERA_PIN 2
 #define POOF_PIN 13
 
+#define COUNTDOWN_DELAY 800
+#define COUNTDOWN_COUNT 5
 #define COUNTDOWN_INTERVAL_MS 1000        // rate at which 1 countdown tick occurs
-#define POOF_DURATION_MS 1000             // duration to keep poofer valve open
-#define PHOTO_DELAY_MS 1000               // Time to wait to take photo
-#define SHUTTER_PRESS_DURATION_MS 1000    // How long to press the shutter
+#define POOF_DURATION_MS 300             // duration to keep poofer valve open
+#define PHOTO_DELAY_MS 310               // Time to wait to take photo
+#define SHUTTER_PRESS_DURATION_MS 100    // How long to press the shutter
 #define LOCKOUT_DURATION_MS 5000          // Keep people from accidentally re-triggering
 
 Button2 btn1(BUTTON_PIN);
@@ -34,9 +37,12 @@ hw_timer_t *timer = NULL;
  * Variable Setup
 **********************/
 
+// button
+uint64_t sequence_start_ms = 0;
+
 // countdown
-uint8_t count = 0;
-uint8_t current_count = 0;
+int8_t count = 0;
+int8_t current_count = 0;
 
 // poofer valve
 bool poofer_open = false;
@@ -52,8 +58,6 @@ bool lockout = false;
 uint64_t lockout_until_ms = 0;
 
 uint64_t now_ms;
-
-
 
 
 /******************************
@@ -106,25 +110,16 @@ void setup_screen_for_text()
  * Photo Poof
 **************************/
 
-uint64_t set_offsets(uint64_t base_time)
+void set_offsets(uint64_t base_time)
 {
-  poofer_start_ms = base_time;
+  sequence_start_ms = base_time + COUNTDOWN_DELAY;
+  poofer_start_ms = sequence_start_ms + (COUNTDOWN_INTERVAL_MS * COUNTDOWN_COUNT);
   poofer_end_ms = poofer_start_ms + POOF_DURATION_MS;
 
   camera_start_ms = poofer_start_ms + PHOTO_DELAY_MS;
   camera_end_ms = camera_start_ms + SHUTTER_PRESS_DURATION_MS;
 
   lockout_until_ms = camera_end_ms + LOCKOUT_DURATION_MS;
-}
-
-void button_pressed()
-{
-  Serial.println("Button pressed!");
-  if (!lockout)
-  {
-    lockout = true;
-    set_offsets(timerReadMilis(timer));
-  }
 }
 
 void setup()
@@ -134,11 +129,25 @@ void setup()
   while (!Serial && millis() < 5000);
 
   delay(500);
-  // setup Buttons
+
   btn1.setPressedHandler([](Button2 &b)
-                         { button_pressed(); });
+                         {
+                           Serial.println("Button pressed!");
+                           if (!lockout)
+                           {
+                             lockout = true;
+                             set_offsets(timerReadMilis(timer));
+                           }
+                         });
+
   btn2.setPressedHandler([](Button2 &b)
-                         { button_pressed(); });
+                         {
+                           Serial.println("Button pressed!");
+                           if (!lockout)
+                           {
+                             lockout = true;
+                             set_offsets(timerReadMilis(timer));
+                           } });
 
   // setup LED pin
   pinMode(LED_PIN, OUTPUT);
@@ -152,12 +161,23 @@ void setup()
   pinMode(POOF_PIN, OUTPUT);
   digitalWrite(POOF_PIN, HIGH);
 
+  screen_init();
+  setup_screen_for_text();
+  display_photopoof_logo();
+
   // setup timer
   timer = timerBegin(0, 80, true);
 }
 
+void button_loop()
+{
+  btn1.loop();
+  btn2.loop();
+}
+
 void loop()
 {
+  button_loop();
   if (lockout)  // countdown + poof sequence running
   {
     now_ms = timerReadMilis(timer);
@@ -186,16 +206,24 @@ void loop()
       camera_shutter_open = false;
     }
 
-    current_count = 5 - (timerReadMilis(timer) / 1000);
-    if (count != current_count && count >= 0)
+    current_count = 5 - ((now_ms - sequence_start_ms) / COUNTDOWN_INTERVAL_MS);
+    if (count != current_count)
     {
       count = current_count;
-      display_number(count);
+      if (count >= 0 && count <= 5)
+      {
+        display_number(count);
+      }
+      else if (count >= -5) //waiting
+      {
+        display_text("Wait");
+      }
     }
 
-    if (lockout_until_ms < timerReadMilis(timer))
+    if (lockout_until_ms < timerReadMilis(timer) && lockout)
     {
       timerRestart(timer);   // restart the timer just in case
+      display_photopoof_logo();
       lockout = false;
     }
   }
