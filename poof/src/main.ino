@@ -14,6 +14,10 @@
 #define TFT_SLPIN 0x10
 #endif
 
+#define SEGMENT_CLOCK_PIN 25
+#define SEGMENT_DATA_PIN  27
+#define SEGMENT_LATCH_PIN 33
+
 #define BUTTON_PIN 26
 #define BUTTON_2_PIN 35
 #define LED_PIN 15
@@ -59,6 +63,125 @@ uint64_t lockout_until_ms = 0;
 
 uint64_t now_ms;
 
+//     -  A
+//    / / F/B
+//    -  G
+//   / / E/C
+//   -. D/DP
+
+// #define a 1 << 0
+// #define b 1 << 1
+// #define c 1 << 2
+// #define d 1 << 3
+// #define e 1 << 4
+// #define f 1 << 6
+// #define g 1 << 5
+// #define dp 1 << 7
+
+#define a 1 << 0
+#define b 1 << 6
+#define c 1 << 5
+#define d 1 << 4
+#define e 1 << 3
+#define f 1 << 1
+#define g 1 << 2
+#define dp 1 << 7
+
+/**************************
+ * 7-Segment Display
+**************************/
+// Given a number, or '-', shifts it out to the display
+void postNumber(byte number, boolean decimal)
+{
+
+  byte segments;
+
+  switch (number)
+  {
+
+  // case 1:
+  //   segments = a;
+  //   break;
+  // case 2:
+  //   segments = b;
+  //   break;
+  // case 3:
+  //   segments = c;
+  //   break;
+  // case 4:
+  //   segments = d;
+  //   break;
+  // case 5:
+  //   segments = e;
+  //   break;
+  // case 6:
+  //   segments = f;
+  //   break;
+  // case 7:
+  //   segments = g;
+  //   break;
+  // case 8:
+  //   segments = dp;
+  //   break;
+  // case 0:
+  //   segments = 0;
+  //   break;
+
+    case 1:
+      segments = b | c;
+      break;
+    case 2:
+      segments = a | b | d | e | g;
+      break;
+    case 3:
+      segments = a | b | c | d | g;
+      break;
+    case 4:
+      segments = f | g | b | c;
+      break;
+    case 5:
+      segments = a | f | g | c | d;
+      break;
+    case 6:
+      segments = a | f | g | e | c | d;
+      break;
+    case 7:
+      segments = a | b | c;
+      break;
+    case 8:
+      segments = a | b | c | d | e | f | g;
+      break;
+    case 9:
+      segments = a | b | c | d | f | g;
+      break;
+    case 0:
+      segments = a | b | c | d | e | f;
+      break;
+    case 'o':
+      segments = c | d | e | g;    // small circle (low)
+    case 'O':
+      segments = a | b | f | g;    // small circle (high)
+    case ' ':
+      segments = 0;
+      break;
+    case 'c':
+      segments = g | e | d;
+      break;
+    case '-':
+      segments = g;
+      break;
+  }
+
+  if (decimal) segments |= dp;
+
+  // Clock these bits out to the drivers
+  for (byte x = 0; x < 8; x++)
+  {
+    digitalWrite(SEGMENT_CLOCK_PIN, LOW);
+    digitalWrite(SEGMENT_DATA_PIN, segments & 1 << (7 - x));
+    digitalWrite(SEGMENT_CLOCK_PIN, HIGH); // Data transfers to the register on the rising edge of SRCK
+  }
+}
 
 /******************************
  * TFT Display
@@ -95,6 +218,9 @@ void display_number(int num)
 {
   sprintf(display_string, "%d", num);
   display_text(display_string);
+  digitalWrite(SEGMENT_LATCH_PIN, LOW);
+  postNumber(num, false);
+  digitalWrite(SEGMENT_LATCH_PIN, HIGH);
 }
 
 void setup_screen_for_text()
@@ -130,7 +256,7 @@ void setup()
 
   delay(500);
 
-  btn1.setPressedHandler([](Button2 &b)
+  btn1.setPressedHandler([](Button2 &button)
                          {
                            Serial.println("Button pressed!");
                            if (!lockout)
@@ -140,7 +266,7 @@ void setup()
                            }
                          });
 
-  btn2.setPressedHandler([](Button2 &b)
+  btn2.setPressedHandler([](Button2 &button)
                          {
                            Serial.println("Button pressed!");
                            if (!lockout)
@@ -161,6 +287,14 @@ void setup()
   pinMode(POOF_PIN, OUTPUT);
   digitalWrite(POOF_PIN, HIGH);
 
+  //setup 7-segment display
+  pinMode(SEGMENT_CLOCK_PIN, OUTPUT);
+  pinMode(SEGMENT_DATA_PIN, OUTPUT);
+  pinMode(SEGMENT_LATCH_PIN, OUTPUT);
+  digitalWrite(SEGMENT_CLOCK_PIN, LOW);
+  digitalWrite(SEGMENT_DATA_PIN, LOW);
+  digitalWrite(SEGMENT_LATCH_PIN, LOW);
+
   screen_init();
   setup_screen_for_text();
   display_photopoof_logo();
@@ -169,16 +303,12 @@ void setup()
   timer = timerBegin(0, 80, true);
 }
 
-void button_loop()
-{
-  btn1.loop();
-  btn2.loop();
-}
-
 void loop()
 {
-  button_loop();
-  if (lockout)  // countdown + poof sequence running
+  btn1.loop();  // check buttons
+  btn2.loop();
+
+  if (lockout)  // countdown + poof sequence are running
   {
     now_ms = timerReadMilis(timer);
 
@@ -186,6 +316,12 @@ void loop()
     {
       digitalWrite(CAMERA_PIN, LOW); // shutter open
       camera_shutter_open = true;
+    }
+
+    if (camera_end_ms < now_ms && camera_shutter_open)
+    {
+      digitalWrite(CAMERA_PIN, HIGH); // shutter close
+      camera_shutter_open = false;
     }
 
     if (poofer_start_ms < now_ms && !poofer_open && now_ms < poofer_end_ms)
@@ -200,22 +336,20 @@ void loop()
       poofer_open = false;
     }
 
-    if (camera_end_ms < now_ms && camera_shutter_open)
-    {
-      digitalWrite(CAMERA_PIN, HIGH); // shutter close
-      camera_shutter_open = false;
-    }
-
     current_count = 5 - ((now_ms - sequence_start_ms) / COUNTDOWN_INTERVAL_MS);
     if (count != current_count)
     {
       count = current_count;
       if (count >= 0 && count <= 5)
       {
-        display_number(count);
+        postNumber(byte(count), false);
+        display_number(count);    // display count
       }
-      else if (count >= -5) //waiting
+      else if (count >= -5) //wait...
       {
+        digitalWrite(SEGMENT_LATCH_PIN, LOW);
+        postNumber(' ', false);
+        digitalWrite(SEGMENT_LATCH_PIN, HIGH);
         display_text("Wait");
       }
     }
