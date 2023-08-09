@@ -7,18 +7,21 @@ from datetime import datetime
 from pathlib import Path
 from camera import Camera
 from combine_print import CombinePrint
+from gphoto2 import GPhoto2Error
 
 def main(logo, path):
     # Setup
     locale.setlocale(locale.LC_ALL, '')
     # Init camera
     printer = CombinePrint(logo=logo)
-    camera = Camera(callback=printer.print, folder=photo_path)
 
     try:
+        camera = Camera(callback=printer.print, folder=photo_path)
         while True:
             camera.wait()
         return 0
+    except GPhoto2Error as err:
+        print("Unable to connect to camera. ", err)
     except KeyboardInterrupt:
         print("Interrupt received... Quitting.")
         return 1
