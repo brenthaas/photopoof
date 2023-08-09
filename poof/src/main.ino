@@ -32,10 +32,15 @@
 #define SHUTTER_PRESS_DURATION_MS 100    // How long to press the shutter
 #define LOCKOUT_DURATION_MS 5000          // Keep people from accidentally re-triggering
 
+#define SLOW_BLINK_DURATION 400
+#define FAST_BLINK_DURATION 150
+
 Button2 btn1(BUTTON_PIN);
 Button2 btn2(BUTTON_2_PIN);
 
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 hw_timer_t *timer = NULL;
+hw_timer_t *blink_timer = NULL;
 
 /**********************
  * Variable Setup
@@ -60,6 +65,9 @@ uint64_t camera_end_ms = 0;
 
 bool lockout = false;
 uint64_t lockout_until_ms = 0;
+
+bool led_status = false;
+volatile bool led_change = false;
 
 uint64_t now_ms;
 
@@ -183,6 +191,13 @@ void postNumber(byte number, boolean decimal)
   }
 }
 
+void IRAM_ATTR flip_led() {
+  portENTER_CRITICAL_ISR(&timerMux);
+  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  led_change = true;
+  portEXIT_CRITICAL_ISR(&timerMux);
+}
+
 /******************************
  * TFT Display
  ******************************/
@@ -246,6 +261,8 @@ void set_offsets(uint64_t base_time)
   camera_end_ms = camera_start_ms + SHUTTER_PRESS_DURATION_MS;
 
   lockout_until_ms = camera_end_ms + LOCKOUT_DURATION_MS;
+  timerAlarmWrite(blink_timer, (1000 * SLOW_BLINK_DURATION), true);
+  timerAlarmEnable(blink_timer);
 }
 
 void setup()
@@ -287,6 +304,10 @@ void setup()
   pinMode(POOF_PIN, OUTPUT);
   digitalWrite(POOF_PIN, HIGH);
 
+  //setup LED arrow
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
+
   //setup 7-segment display
   pinMode(SEGMENT_CLOCK_PIN, OUTPUT);
   pinMode(SEGMENT_DATA_PIN, OUTPUT);
@@ -301,6 +322,9 @@ void setup()
 
   // setup timer
   timer = timerBegin(0, 80, true);
+  blink_timer = timerBegin(1, 80, true);
+
+  timerAttachInterrupt(blink_timer, &flip_led, true);
 }
 
 void loop()
@@ -311,6 +335,12 @@ void loop()
   if (lockout)  // countdown + poof sequence are running
   {
     now_ms = timerReadMilis(timer);
+
+    if (led_change)
+    {
+      // display_text("blink!");
+      led_change = false;
+    }
 
     if (camera_start_ms < now_ms && !camera_shutter_open && now_ms < camera_end_ms)
     {
@@ -340,16 +370,28 @@ void loop()
     if (count != current_count)
     {
       count = current_count;
-      if (count >= 0 && count <= 5)
+      if (count > 0 && count <= 5)
       {
-        postNumber(byte(count), false);
+        digitalWrite(SEGMENT_LATCH_PIN, LOW);
+        postNumber(count, false);
+        digitalWrite(SEGMENT_LATCH_PIN, HIGH);
         display_number(count);    // display count
+        if (count == 2)
+        {
+          timerAlarmWrite(blink_timer, (1000 * FAST_BLINK_DURATION), true);
+        }
+
+      }
+      else if (count == 0)
+      {
+        timerAlarmDisable(blink_timer);
+        digitalWrite(LED_PIN, LOW);
+        digitalWrite(SEGMENT_LATCH_PIN, LOW);  // clear 7-segment
+        postNumber(' ', false);
+        digitalWrite(SEGMENT_LATCH_PIN, HIGH);
       }
       else if (count >= -5) //wait...
       {
-        digitalWrite(SEGMENT_LATCH_PIN, LOW);
-        postNumber(' ', false);
-        digitalWrite(SEGMENT_LATCH_PIN, HIGH);
         display_text("Wait");
       }
     }
@@ -357,6 +399,7 @@ void loop()
     if (lockout_until_ms < timerReadMilis(timer) && lockout)
     {
       timerRestart(timer);   // restart the timer just in case
+      digitalWrite(LED_PIN, HIGH);
       display_photopoof_logo();
       lockout = false;
     }
