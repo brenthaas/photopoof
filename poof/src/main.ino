@@ -316,6 +316,7 @@ void loop()
     {
       digitalWrite(CAMERA_PIN, LOW); // shutter open
       camera_shutter_open = true;
+      camera_end_ms = camera_start_ms + SHUTTER_PRESS_DURATION_MS;
     }
 
     if (camera_end_ms < now_ms && camera_shutter_open)
@@ -342,9 +343,6 @@ void loop()
       count = current_count;
       if (count > 0 && count <= 5)
       {
-        digitalWrite(SEGMENT_LATCH_PIN, LOW);
-        postNumber(count, false);
-        digitalWrite(SEGMENT_LATCH_PIN, HIGH);
         display_number(count);    // display count
         if (count == 2)
         {
