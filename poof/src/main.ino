@@ -93,7 +93,7 @@ uint64_t now_ms;
 void postNumber(byte number, boolean decimal)
 {
 
-  byte segments = 0;
+  byte segments;
 
   switch (number)
   {
@@ -149,13 +149,14 @@ void postNumber(byte number, boolean decimal)
   // Clock these bits out to the drivers
   for (byte x = 0; x < 8; x++)
   {
-    delayMicroseconds(100);
+    portENTER_CRITICAL_ISR(&timerMux);
     digitalWrite(SEGMENT_CLOCK_PIN, LOW);
-    delayMicroseconds(100);
     digitalWrite(SEGMENT_DATA_PIN, segments & 1 << (7 - x));
-    delayMicroseconds(100);
+    portEXIT_CRITICAL_ISR(&timerMux);
+    delayMicroseconds(150);
+    portENTER_CRITICAL_ISR(&timerMux);
     digitalWrite(SEGMENT_CLOCK_PIN, HIGH); // Data transfers to the register on the rising edge of SRCK
-    delayMicroseconds(100);
+    portEXIT_CRITICAL_ISR(&timerMux);
   }
 }
 
@@ -201,11 +202,12 @@ void display_number(int num)
 {
   sprintf(display_string, "%d", num);
   display_text(display_string);
-  digitalWrite(SEGMENT_LATCH_PIN, LOW);
-  delayMicroseconds(100);
   postNumber(num, false);
-  delayMicroseconds(100);
+  portENTER_CRITICAL_ISR(&timerMux);
+  digitalWrite(SEGMENT_LATCH_PIN, LOW);
+  delayMicroseconds(50);
   digitalWrite(SEGMENT_LATCH_PIN, HIGH);
+  portEXIT_CRITICAL_ISR(&timerMux);
 }
 
 void setup_screen_for_text()
