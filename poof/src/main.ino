@@ -86,6 +86,8 @@ uint64_t now_ms;
 #define g 1 << 2
 #define dp 1 << 7
 
+byte segments = 0;
+
 /**************************
  * 7-Segment Display
 **************************/
@@ -93,7 +95,7 @@ uint64_t now_ms;
 void postNumber(byte number, boolean decimal)
 {
 
-  byte segments;
+  segments = 0;
 
   switch (number)
   {
@@ -167,6 +169,14 @@ void IRAM_ATTR flip_led() {
   portEXIT_CRITICAL_ISR(&timerMux);
 }
 
+void enableLatch() {
+  digitalWrite(SEGMENT_LATCH_PIN, LOW);
+}
+
+void disableLatch() {
+  digitalWrite(SEGMENT_LATCH_PIN, HIGH);
+}
+
 /******************************
  * TFT Display
  ******************************/
@@ -202,11 +212,12 @@ void display_number(int num)
 {
   sprintf(display_string, "%d", num);
   display_text(display_string);
-  postNumber(num, false);
+
   portENTER_CRITICAL_ISR(&timerMux);
-  digitalWrite(SEGMENT_LATCH_PIN, LOW);
+  enableLatch();
   delayMicroseconds(50);
-  digitalWrite(SEGMENT_LATCH_PIN, HIGH);
+  postNumber(num, false);
+  disableLatch();
   portEXIT_CRITICAL_ISR(&timerMux);
 }
 
