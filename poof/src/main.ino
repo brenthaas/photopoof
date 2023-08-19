@@ -77,14 +77,26 @@ uint64_t now_ms;
 //   / / E/C
 //   -. D/DP
 
-#define a 1 << 0
-#define b 1 << 6
-#define c 1 << 5
-#define d 1 << 4
-#define e 1 << 3
-#define f 1 << 1
-#define g 1 << 2
-#define dp 1 << 7
+#define _BV(x) (1 << x)
+#define bit(b) (1UL << (b))
+
+#define a bit(0)
+#define b bit(6)
+#define c bit(5)
+#define d bit(4)
+#define e bit(3)
+#define f bit(1)
+#define g bit(2)
+#define dp bit(7)
+
+// #define a 1 << 0
+// #define b 1 << 6
+// #define c 1 << 5
+// #define d 1 << 4
+// #define e 1 << 3
+// #define f 1 << 1
+// #define g 1 << 2
+// #define dp 1 << 7
 
 byte segments = 0;
 
@@ -151,14 +163,11 @@ void postNumber(byte number, boolean decimal)
   // Clock these bits out to the drivers
   for (byte x = 0; x < 8; x++)
   {
-    portENTER_CRITICAL_ISR(&timerMux);
     digitalWrite(SEGMENT_CLOCK_PIN, LOW);
     digitalWrite(SEGMENT_DATA_PIN, segments & 1 << (7 - x));
-    portEXIT_CRITICAL_ISR(&timerMux);
-    delayMicroseconds(150);
-    portENTER_CRITICAL_ISR(&timerMux);
+    delayMicroseconds(50);
     digitalWrite(SEGMENT_CLOCK_PIN, HIGH); // Data transfers to the register on the rising edge of SRCK
-    portEXIT_CRITICAL_ISR(&timerMux);
+    delayMicroseconds(20);
   }
 }
 
