@@ -77,15 +77,6 @@ uint64_t now_ms;
 //   / / E/C
 //   -. D/DP
 
-// #define a 1 << 0
-// #define b 1 << 1
-// #define c 1 << 2
-// #define d 1 << 3
-// #define e 1 << 4
-// #define f 1 << 6
-// #define g 1 << 5
-// #define dp 1 << 7
-
 #define a 1 << 0
 #define b 1 << 6
 #define c 1 << 5
@@ -102,39 +93,10 @@ uint64_t now_ms;
 void postNumber(byte number, boolean decimal)
 {
 
-  byte segments;
+  byte segments = 0;
 
   switch (number)
   {
-
-  // case 1:
-  //   segments = a;
-  //   break;
-  // case 2:
-  //   segments = b;
-  //   break;
-  // case 3:
-  //   segments = c;
-  //   break;
-  // case 4:
-  //   segments = d;
-  //   break;
-  // case 5:
-  //   segments = e;
-  //   break;
-  // case 6:
-  //   segments = f;
-  //   break;
-  // case 7:
-  //   segments = g;
-  //   break;
-  // case 8:
-  //   segments = dp;
-  //   break;
-  // case 0:
-  //   segments = 0;
-  //   break;
-
     case 1:
       segments = b | c;
       break;
@@ -167,8 +129,10 @@ void postNumber(byte number, boolean decimal)
       break;
     case 'o':
       segments = c | d | e | g;    // small circle (low)
+      break;
     case 'O':
       segments = a | b | f | g;    // small circle (high)
+      break;
     case ' ':
       segments = 0;
       break;
@@ -185,9 +149,13 @@ void postNumber(byte number, boolean decimal)
   // Clock these bits out to the drivers
   for (byte x = 0; x < 8; x++)
   {
+    delayMicroseconds(100);
     digitalWrite(SEGMENT_CLOCK_PIN, LOW);
+    delayMicroseconds(100);
     digitalWrite(SEGMENT_DATA_PIN, segments & 1 << (7 - x));
+    delayMicroseconds(100);
     digitalWrite(SEGMENT_CLOCK_PIN, HIGH); // Data transfers to the register on the rising edge of SRCK
+    delayMicroseconds(100);
   }
 }
 
@@ -234,7 +202,9 @@ void display_number(int num)
   sprintf(display_string, "%d", num);
   display_text(display_string);
   digitalWrite(SEGMENT_LATCH_PIN, LOW);
+  delayMicroseconds(100);
   postNumber(num, false);
+  delayMicroseconds(100);
   digitalWrite(SEGMENT_LATCH_PIN, HIGH);
 }
 
