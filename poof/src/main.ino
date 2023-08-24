@@ -164,6 +164,7 @@ void postNumber(byte number, boolean decimal)
   for (byte x = 0; x < 8; x++)
   {
     digitalWrite(SEGMENT_CLOCK_PIN, LOW);
+    delayMicroseconds(50);
     digitalWrite(SEGMENT_DATA_PIN, segments & 1 << (7 - x));
     delayMicroseconds(50);
     digitalWrite(SEGMENT_CLOCK_PIN, HIGH); // Data transfers to the register on the rising edge of SRCK
